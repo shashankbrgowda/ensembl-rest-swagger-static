@@ -1,0 +1,347 @@
+otter steps followed:
+
+CLIENT SETUP:
+1. couldn't install ZMQ::LibZMQ3
+sudo apt-get install -y autoconf libtool libexpat1-dev libbison-dev flex bison libxi-dev libxmu-dev cpanminus git libpng-dev libzmq3-dev libdbd-sqlite3-perl libcairo2-dev libgdk-pixbuf2.0-dev libpango1.0-dev libmysqlclient-dev libcurl4-gnutls-dev libssl-dev libgtk2.0-dev libglib2.0-dev libreadline6-dev libsqlite3-dev &&
+cd $HOME &&
+git clone https://github.com/Ensembl/otter-client.git &&
+cd otter-client/software/anacode/otter/otter_rel109/ &&
+rm -r ensembl-otter/ ensembl/ &&
+git clone https://github.com/Ensembl/ensembl-otter.git &&
+git clone --branch release/99 https://github.com/ensembl/ensembl &&
+sudo cpanm Log::Log4perl Proc::ProcessTable Term::ReadKey XML::Simple JSON Bio::PrimarySeqI DBI Readonly Config::IniFiles Lingua::EN::Inflect Mac::PropertyList Crypt::JWT Tk Moose MooseX::Log::Log4perl ZMQ::LibZMQ3 Data::Rmap Hash::Merge::Simple Text::sprintfn AnyEvent::Impl::Perl Bio::DB::HTS
+
+2.
+cd $HOME &&
+sudo apt-get install -y libbz2-dev liblzma-dev &&
+wget https://github.com/samtools/htslib/releases/download/1.8/htslib-1.8.tar.bz2 && 
+tar xvf htslib-1.8.tar.bz2 && 
+cd htslib-1.8/ && 
+./configure && 
+make && 
+sudo make install
+
+3.
+cd $HOME &&
+wget http://ftp.ebi.ac.uk/pub/software/vertebrategenomics/exonerate/exonerate-2.2.0.tar.gz &&
+tar xvf exonerate-2.2.0.tar.gz &&
+cd exonerate-2.2.0/ &&
+./configure LIBS=-lpthread &&
+make &&
+sudo make install
+
+4.
+cd $HOME &&
+git clone https://github.com/Ensembl/seqtools.git &&
+
+cd seqtools/src &&
+
+./autogen.sh &&
+./configure --prefix=/usr &&
+make &&
+sudo make install
+
+5.
+cd $HOME &&
+
+git clone https://github.com/Ensembl/zmap.git &&
+
+cd zmap/src/ &&
+
+./autogen.sh &&
+
+./configure CFLAGS="-I/usr/include/openssl" LDFLAGS="-L/usr/lib/x86_64-linux-gnu/libmysqlclient.so -L/usr/lib/libssl.so" --prefix=/usr &&
+make &&
+sudo make install
+
+
+6.
+export KENT_SRC=$HOME/otter-client/software/anacode/perl_installation/kent/src/
+export MACHTYPE=`uname -p`
+cd $HOME
+git clone git://genome-source.soe.ucsc.edu/kent.git
+cd kent
+sed -i -- 's/-DUCSC_CRAM/-DUCSC_CRAM -fPIC/g' ./src/htslib/Makefile
+sed -i -- 's/CC=gcc/CC=gcc -fPIC/g' ./src/inc/common.mk
+cd src
+sed -i '1119s/my_bool/bool/' ./hg/lib/jksql.c
+sed -i '1120s/MYSQL_OPT_SSL_VERIFY_SERVER_CERT/CLIENT_SSL_VERIFY_SERVER_CERT/' ./hg/lib/jksql.c
+CFLAGS=-fPIC make userApps
+
+
+7.
+cd $HOME
+cd ./kent/src
+export KENT_SRC=$PWD
+echo $KENT_SRC
+ln -s $KENT_SRC/lib/x86_64/* $KENT_SRC/lib/
+sudo cpanm Test::Pod::Coverage
+sudo apt-get install -y libxml-dom-xpath-perl
+sudo cpanm Bio::Root::Version
+sudo apt-get install -y hmmer
+sudo cpanm Bio::DB::HTS
+
+
+8. asks for input gave - home/shabr/kent/src
+cd $HOME &&
+wget https://cpan.metacpan.org/authors/id/L/LD/LDS/Bio-BigFile-1.01.tar.gz &&
+tar -zxvf Bio-BigFile-1.01.tar.gz && cd Bio-BigFile-1.01 &&
+perl -pi -e 's/.*extra_linker_flags.*/extra_linker_flags => ["\$jk_lib\/\$LibFile","\$jk_lib\/..\/htslib\/libhts.a","-lz", "-lssl"],/g' sudo Build.PL &&
+sudo perl Build.PL &&
+sudo ./Build &&
+sudo ./Build test &&
+sudo ./Build install
+
+
+9.
+cd $HOME &&
+echo 'export PATH="$HOME/otter-client/software/anacode/otter/otter_live/bin/:$PATH"' >> ~/.bash_profile &&
+echo 'export PATH="$HOME/otter-client/software/anacode/otter/otter_live/bin/:$PATH"' >> ~/.bashrc &&
+source ~/.bash_profile
+source ~/.bashrc
+
+
+SERVER SETUP:
+For server we need to create directory called loutre in home directory
+
+10. can't install few, remove them - updated one below
+sudo apt-get install -y \
+ apache2 \
+ cpanminus \
+ exonerate \
+ git \
+ hmmer2 \
+ libanyevent-perl \
+ libapache2-mod-perl2 \
+ libbz2-dev \
+ libconfig-dev \
+ libconfig-inifiles-perl \
+ libconst-fast-perl \
+ libcurl4-openssl-dev \
+ libdata-rmap-perl \
+ libdbd-mysql-perl \
+ libdbd-sqlite3-perl \
+ libdbi-perl \
+ libfile-slurp-perl \
+ libgtk2.0-dev \
+ libhash-merge-simple-perl \
+ libhts-dev \
+ libio-stringy-perl \
+ libjson-perl \
+ liblingua-en-inflect-perl \
+ liblog-log4perl-perl \
+ liblzma-dev \
+ libmoosex-log-log4perl-perl \
+ libmoosex-role-strict-perl \
+ libmysqlclient-dev \
+ libnamespace-autoclean-perl \
+ libproc-processtable-perl \
+ libreadline6-dev \
+ libreadonly-perl \
+ libsqlite3-dev \
+ libssl-dev \
+ libterm-readkey-perl \
+ libtest-mockobject-perl \
+ libtext-sprintfn-perl \
+ libtry-tiny-perl \
+ libxml-simple-perl \
+ libyaml-perl \
+ libzmqpp-dev \
+ mysql-client \
+ perl-tk \
+ sqlite3 \
+ uuid-dev
+ 
+ 
+ 11.
+ sudo cpanm --force Bio::Das::Lite
+sudo cpanm \
+ App::Cmd::Simple \
+ Bio::DB::HTS \
+ Config::IniFiles \
+ Const::Fast \
+ Crypt::CBC \
+ DBI \
+ Data::Rmap \
+ File::Slurp \
+ Hash::Merge::Simple \
+ IO::Scalar \
+ JSON \
+ Lingua::EN::Inflect \
+ Log::Log4perl \
+ Log::Log4perl::Appender \
+ Mac::PropertyList \
+ Moose::Role \
+ MooseX::Log::Log4perl \
+ Proc::ProcessTable \
+ Readonly \
+ Term::ReadKey \
+ Text::sprintfn \
+ Tk \
+ Try::Tiny \
+ XML::Entities \
+ XML::Simple \
+ YAML \
+ namespace::autoclean
+ 
+ 12.
+ cd loutre
+ 
+ 13. inside loutre
+ git clone git@github.com:Ensembl/PerlModules.git
+ git clone git@github.com:Ensembl/team_tools.git
+ git clone git@github.com:Ensembl/server-config.git
+ git clone git@github.com:Ensembl/webvm.git
+ git clone git@github.com:Ensembl/webvm-deps.git
+ 
+ 14. client is already setup. here we create a symlink to ensembl-otter in ~/otter-client
+ rm -rf ensembl-otter && ln -sf ~/otter-client/software/anacode/otter/otter_rel109/ensembl-otter
+ cd ./webvm/data && rm -rf otter && ln -sf ../../server-config otter
+ cd ./webvm/cgi-bin/otter && rm -rf 110 && ln -sf ../../../ensembl-otter/scripts/apache 110
+ cd ./webvm/lib/otter && rm -rf 110 && ln -sf ../../../ensembl-otter/modules/ 110
+ rm -f ./webvm/logs/apache2.pid
+ cd ./webvm/ServerRoot/conf/user && ln -sf otter.conf "${USER}.conf"
+ chmod -R go-rwx ./webvm/data ./server-config
+ 
+ Starting:
+ $HOME/loutre/webvm/utilities/start
+ 
+ restarting:
+ $HOME/loutre/webvm/utilities/restart
+ 
+ Stop:
+ $HOME/loutre/webvm/utilities/stop
+ 
+ Server logs:
+ /home/shashankbrgowda/loutre/webvm/logs/error_log
+ 
+ Client start:
+ /home/shashankbrgowda/otter-client/software/anacode/otter/otter_live/bin/otter
+ 
+ server database yml file:
+ /home/shashankbrgowda/loutre/server-config/databases.yaml
+ 
+ --force install ZMQ::LibZMQ3:
+ sudo cpanm --force ZMQ::LibZMQ3
+ 
+ we need to start client to create ~/.otter/config.ini file
+ 
+ add url in config.ini file:
+ url=http://localhost:8004/cgi-bin/otter
+ 
+ user and password:
+ anamap51
+ 
+ 
+ If we get below error:
+[Mon Feb 07 15:57:12.667630 2022] [cgi:error] [pid 72793:tid 139788218181376] [client 127.0.0.1:38904] AH01215:   Looked for /home/shashankbrgowda/loutre/webvm/apps/webvm-deps/ensembl-branch-99: /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/authenticate_me
+[Mon Feb 07 15:57:12.667683 2022] [cgi:error] [pid 72793:tid 139788218181376] [client 127.0.0.1:38904] AH01215:   Available are (ensembl76 ensembl77 ensembl78 ensembl79 ensembl83): /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/authenticate_me
+=>> created ensembl-branch-99 and just copied ensembl83 to it in /home/shashankbrgowda/loutre/webvm/apps/webvm-deps/
+
+installed CGI:
+sudo cpanm CGI
+
+changed db conf in /home/shashankbrgowda/loutre/server-config/databases.yaml:
+    -host: 45.88.80.91
+    -port: 3306
+    -user: havananew
+    -pass: 'ebi123'
+    
+    
+asks for password:
+anamap51
+
+if we get below error, then checkout test_config branch in loutre/server-config
+Server returned error 417: No such dataset 'sus_scrofa' at /home/shashankbrgowda/loutre/webvm/lib/otter/110/Bio/Otter/SpeciesDat.pm line 56.
+
+[Mon Feb 07 16:56:49.811880 2022] [cgi:error] [pid 78908:tid 139788209788672] [client 127.0.0.1:39652] AH01215: pid 79081: ERROR: DBD::mysql::st execute failed: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ', version, attrib FROM coord_system WHERE species_id = 1' at line 1 at /home/shashankbrgowda/loutre/webvm/apps/webvm-deps/ensembl-branch-99/ensembl/modules/Bio/EnsEMBL/DBSQL/CoordSystemAdaptor.pm line 184.: /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/get_sequencesets
+=> since we copied from ensembl 83, we need to delete ensembl code in ensembl-branch-99 and clone ensembl code again
+
+Now getting 504 gateway timeout - http://localhost:8004/cgi-bin/otter/110/get_sequencesets?dataset=human&client=otter&author=anamap51
+
+**** checkout java client in loutre/ensembl-otter which connects to ensembl-new-registry for some endpoints then, restart server and client
+
+[Mon Feb 07 18:52:22.082696 2022] [cgi:error] [pid 86686:tid 140460848830208] [client 127.0.0.1:41314] AH01215: MSG: Could not connect to database pipe_human as user ensro using [DBI:mysql:database=pipe_human;host=mysql-ens-havana-prod-1;port=4581] as a locator:: /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/get_analyses_status
+[Mon Feb 07 18:52:22.082889 2022] [cgi:error] [pid 86686:tid 140460848830208] [client 127.0.0.1:41314] AH01215: DBI connect('database=pipe_human;host=mysql-ens-havana-prod-1;port=4581','ensro',...) failed: Unknown MySQL server host 'mysql-ens-havana-prod-1' (-3) at /home/shashankbrgowda/loutre/webvm/apps/webvm-deps/ensembl-branch-99/ensembl/modules/Bio/EnsEMBL/DBSQL/DBConnection.pm line 260.: /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/get_analyses_status
+=> try after loading other dbs
+
+
+loading dbs
+
+mysql-ens-mirror-1:
+homo_sapiens_cdna_106_38 (havanadbcopy)
+homo_sapiens_core_106_38 (havanadbcopy)
+homo_sapiens_funcgen_106_38 -> 115Gb - not laoded Now
+homo_sapiens_otherfeatures_106_38 (havanadbcopy)
+homo_sapiens_rnaseq_106_38 (havanadbcopy)
+homo_sapiens_variation_106_38 -> 130gb - not loaded now
+
+sudo mysql -uroot pipe_human < pipe_human.sql
+
+
+check db size:
+SELECT table_schema "havana_human", ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) "DB Size in MB" FROM information_schema.tables GROUP BY table_schema;
+
+sudo mysqldump --port 4581 --host hh-db-nat.ebi.ac.uk -u nomerge -pis_coming carlos_homo_sapiens_ensembl_88_for_havana --column-statistics=0 > carlos_homo_sapiens_ensembl_88_for_havana.sql
+
+sudo mysql -uroot carlos_homo_sapiens_ensembl_88_for_havana < carlos_homo_sapiens_ensembl_88_for_havana.sql
+
+havana-prod1:
+pipe_human
+homo_sapiens_ccds_99_38
+gencode_various_rnaseq
+gencode_U12_intron_validation_using_Tylers_pipeline_genM2_mouse
+gencode_U12_intron_validation_using_Tylers_pipeline_gen19_human
+gencode_snaptron
+gencode_sf5_microExons1
+gencode_sf5_loutre_introns_not_in_intropolis
+gencode_sf5_human_OLFR_cuff_models
+gencode_sf5_human_introns
+gencode_sf5_human_GRCh37_3p_seq
+gencode_sf5_human_eiee
+gencode_sf5_human_3p_seq
+gencode_rnaseq_cshl
+gencode_RAMPAGE_promoters_human_Nathan_Boley
+gencode_race_454
+gencode_polyAseq
+gencode_long_read_pipeline
+gencode_jeenas_human_Carninci_lincs_GRCh38
+gencode_Iyer_lncrnas
+gencode_intron_RNAseq_human
+gencode_intron_qc
+gencode_human_proteogenomics
+gencode_human_plar
+gencode_human_phylocsf
+gencode_human_misc
+gencode_human_h38
+gencode_human_h37
+gencode_human_captureseq
+gencode_homo_sapiens_rnaseq_69_37
+gencode_exp_val_tracks
+gencode_ditag
+gencode_cufflinks_new
+gencode_cufflinks_multspec
+gencode_cufflinks_multcomb
+gencode_cufflinks_de_novo
+gencode_cufflinks
+gencode_combined_CCDS
+gencode_Clark_capture_array
+gencode_454RACE_nested_primers
+gencode_2way_pseudogenes
+fergal_uniprot_blast_out_full_1
+carlos_homo_sapiens_ensembl_88_for_havana
+
+
+software release 105 and db release 99 difference error: 
+[Mon Feb 14 12:31:42.949437 2022] [cgi:error] [pid 6860:tid 140271551510272] [client 127.0.0.1:38580] AH01215: pid 7118: For havana_human@45.88.80.91 there is a difference in the software release (105) and the database release (99). You should update one of these to ensure that your script does not crash.: /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/get_clonesequences
+[Mon Feb 14 12:31:44.382931 2022] [cgi:error] [pid 6860:tid 140271551510272] [client 127.0.0.1:38580] AH01215: pid 7118: Use of uninitialized value in string eq at /home/shashankbrgowda/loutre/webvm/apps/webvm-deps/ensembl-branch-99/ensembl/modules/Bio/EnsEMBL/DBSQL/SliceAdaptor.pm line 257.: /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/get_clonesequences
+[Mon Feb 14 12:32:44.435910 2022] [cgi:warn] [pid 6860:tid 140271551510272] [client 127.0.0.1:38580] AH01220: Timeout waiting for output from CGI script /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/get_clonesequences
+[Mon Feb 14 12:32:44.435987 2022] [cgi:error] [pid 6860:tid 140271551510272] [client 127.0.0.1:38580] Script timed out before returning headers: get_clonesequences
+[Mon Feb 14 12:32:57.785150 2022] [cgi:error] [pid 6860:tid 140271551510272] [client 127.0.0.1:38580] AH01215: pid 7118: outputting: /home/shashankbrgowda/loutre/webvm/cgi-bin/otter/110/get_clonesequences
+Solution=> 
+
+
+=>> If we /var/tmp/ session error - delete otter_shashankbrgowda
+
+
+Note: If there is a lock in otter for a user, remove it from slice_lock table.. author can be found in author table

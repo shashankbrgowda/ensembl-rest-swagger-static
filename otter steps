@@ -242,10 +242,7 @@ installed CGI:
 sudo cpanm CGI
 
 changed db conf in /home/shashankbrgowda/loutre/server-config/databases.yaml:
-    -host: 127.0.0.1
-    -port: 3306
-    -user: havananew
-    -pass: 'ebi123'
+
     
     
 asks for password:

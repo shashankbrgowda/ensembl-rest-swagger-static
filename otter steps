@@ -282,7 +282,7 @@ sudo mysql -uroot pipe_human < pipe_human.sql
 check db size:
 SELECT table_schema "havana_human", ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) "DB Size in MB" FROM information_schema.tables GROUP BY table_schema;
 
-sudo mysqldump --port 4581 --host hh-db-nat.ebi.ac.uk -u nomerge -pis_coming carlos_homo_sapiens_ensembl_88_for_havana --column-statistics=0 > carlos_homo_sapiens_ensembl_88_for_havana.sql
+sudo mysqldump --port 4581 --host 127.0.0.1 -u nomerge -pis_coming carlos_homo_sapiens_ensembl_88_for_havana --column-statistics=0 > carlos_homo_sapiens_ensembl_88_for_havana.sql
 
 sudo mysql -uroot carlos_homo_sapiens_ensembl_88_for_havana < carlos_homo_sapiens_ensembl_88_for_havana.sql
 
